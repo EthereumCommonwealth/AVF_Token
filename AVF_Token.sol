@@ -81,9 +81,6 @@ contract AVF_Token {
     uint8   private _decimals;
     uint256 private _totalSupply;
     uint256 public  max_cap;
-    uint256 public  fee; // (fee / 10000) is charged from each transfer of tokens and sent to DAO_Treasury address.
-                         // fee = 50 corresponds to 0.5% being charged and delivered to the DAO_Treasury address.
-                         // fee = 0 means fees are disabled. 
     address public  owner = msg.sender;
     address public  pending_owner;
     address public  DAO_Treasury;
@@ -145,14 +142,6 @@ contract AVF_Token {
         // Standard function transfer similar to ERC20 transfer with no _data .
         // Added due to backwards compatibility reasons.
         if(msg.value > 0) payable(_to).transfer(msg.value);
-        if(fee > 0 )
-        {
-            balances[DAO_Treasury] += _value * fee / 10000;
-            _value -= _value * fee / 10000;
-            if(Address.isContract(DAO_Treasury)) {
-                IERC223Recipient(_to).tokenReceived(msg.sender, _value, hex"00000000");
-            }
-        }
         balances[msg.sender] = balances[msg.sender] - _value;
         balances[_to] = balances[_to] + _value;
         if(Address.isContract(_to)) {
@@ -167,14 +156,6 @@ contract AVF_Token {
     {
         if(msg.value > 0) payable(_to).transfer(msg.value);
         bytes memory _empty = hex"00000000";
-        if(fee > 0 )
-        {
-            balances[DAO_Treasury] += _value * fee / 10000;
-            _value -= _value * fee / 10000;
-            if(Address.isContract(DAO_Treasury)) {
-                IERC223Recipient(_to).tokenReceived(msg.sender, _value, hex"00000000");
-            }
-        }
         balances[msg.sender] = balances[msg.sender] - _value;
         balances[_to] = balances[_to] + _value;
         if(Address.isContract(_to)) {
@@ -198,11 +179,6 @@ contract AVF_Token {
     function set_DAO_Treasury(address _new_Treasury) public onlyOwner
     {
         DAO_Treasury = _new_Treasury;
-    }
-
-    function set_fee(uint256 _new_fee) public onlyOwner
-    {
-        fee = _new_fee;
     }
 
 
