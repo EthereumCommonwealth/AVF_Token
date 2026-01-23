@@ -101,6 +101,7 @@ contract AVF_Token {
         _decimals = 18;
         max_cap   = 8000000000 * (10 ** _decimals);
         balances[msg.sender] = 28000000 * (10 ** _decimals);
+        _totalSupply = 28000000 * (10 ** _decimals);
     }
     
     function name() public view returns (string memory)
