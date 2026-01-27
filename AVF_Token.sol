@@ -75,6 +75,8 @@ contract AVF_Token {
     event Transfer(address indexed from, address indexed to, uint256 value);
     event TransferData(bytes);
     event Approval(address indexed owner, address indexed spender, uint256 amount);
+    event NewOwnerPending(address indexed owner);
+    event NewOwner(address indexed owner);
 
     string  private _name;
     string  private _symbol;
@@ -245,11 +247,13 @@ contract AVF_Token {
     {
         //require(msg.sender == owner);
         pending_owner = _owner;
+        emit NewOwnerPending(_owner);
     }
 
     function claimOwnership() external
     {
         require(msg.sender == pending_owner);
         owner = pending_owner;
+        emit NewOwner(msg.sender);
     }
 }
