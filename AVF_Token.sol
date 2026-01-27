@@ -101,7 +101,6 @@ contract AVF_Token {
         _decimals = 18;
         max_cap   = 8000000000 * (10 ** _decimals);
         balances[msg.sender] = 28000000 * (10 ** _decimals);
-        _totalSupply = 28000000 * (10 ** _decimals);
     }
     
     function name() public view returns (string memory)
@@ -176,6 +175,13 @@ contract AVF_Token {
         emit Transfer(address(0), _receiver, _quantity);
     }
 
+    function burn(address _burn, uint256 _quantity) public onlyOwner
+    {
+        balances[_burn] -= _quantity;
+        _totalSupply -= _quantity;
+        emit Transfer(_burn, address(0), _quantity);
+    }
+
 
     function set_DAO_Treasury(address _new_Treasury) public onlyOwner
     {
@@ -229,17 +235,8 @@ contract AVF_Token {
         return true;
     }
 
-    // ERC-20 standard contains a security flaw described here: https://medium.com/dex223/known-problems-of-erc20-token-standard-e98887b9532c
-    // ERC-20 tokens do not invoke any callback function upon being deposited to a smart-contract via `transfer` function,
-    // therefore it's impossible to handle errors and prevent users from sending tokens to smart-contracts which are not designed to receive them.
-    // As of 2024 $83,000,000 worth of ERC-20 tokens were lost due to this flaw: https://dexaran.github.io/erc20-losses/
-    // In order to mitigate this issue we are allowing the owner to extract the tokens.
-    // You can contact the owner of the contract dexaran820@gmail.com / dexaran@ethereumclassic.org 
-    // if you have accidentally deposited tokens to this contract.
-
-    function rescueERC20(address _token, uint256 _value) external
+    function rescueERC20(address _token, uint256 _value) external onlyOwner
     {
-        require(msg.sender == owner);
         (bool success, bytes memory data) = _token.call(abi.encodeWithSelector(0xa9059cbb, msg.sender, _value));
         require(success && (data.length == 0 || abi.decode(data, (bool))), "Transfer failed");
     }
